@@ -60,6 +60,9 @@ public class NewGoodsFragment extends Fragment {
         NetDao.downloadNewGoods(mContext, pageId, new OkHttpUtils.OnCompleteListener<NewGoodsBean[]>() {
             @Override
             public void onSuccess(NewGoodsBean[] result) {
+                mSrl.setRefreshing(false);
+                mTvRefresh.setVisibility(View.GONE);
+                L.e("result="+result);
                 if (result != null && result.length > 0) {
                     ArrayList<NewGoodsBean> list = ConvertUtils.array2List(result);
                     mAdapter.initData(list);
@@ -68,7 +71,9 @@ public class NewGoodsFragment extends Fragment {
 
             @Override
             public void onError(String error) {
-                L.e("error"+error);
+                mSrl.setRefreshing(false);
+                mTvRefresh.setVisibility(View.GONE);
+                L.e("error:"+error);
             }
         });
     }
