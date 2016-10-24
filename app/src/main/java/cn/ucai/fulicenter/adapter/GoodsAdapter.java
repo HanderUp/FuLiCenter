@@ -18,10 +18,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
-import cn.ucai.fulicenter.activity.GoodsDetailsActivity;
 import cn.ucai.fulicenter.bean.NewGoodsBean;
 import cn.ucai.fulicenter.utils.ImageLoader;
 import cn.ucai.fulicenter.utils.MFGT;
+import cn.ucai.fulicenter.view.FooterViewHolder;
 
 /**
  * Created by Administrator on 2016/10/22.
@@ -122,16 +122,6 @@ public class GoodsAdapter extends Adapter {
         public void onGoodsItemClick() {
             int goodsId= (int) mLayoutGoods.getTag();
             MFGT.gotoGoodsDetailsActivity(mContext,goodsId);
-        }
-    }
-
-    static class FooterViewHolder extends ViewHolder{
-        @BindView(R.id.tvFooter)
-        TextView mTvFooter;
-
-        FooterViewHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
         }
     }
 }
