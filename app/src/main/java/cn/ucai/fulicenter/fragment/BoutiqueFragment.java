@@ -43,13 +43,14 @@ public class BoutiqueFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View laypout = inflater.inflate(R.layout.fragment_newgoods, container, false);
-        ButterKnife.bind(this, laypout);
+        View layout = inflater.inflate(R.layout.fragment_newgoods, container, false);
+        ButterKnife.bind(this, layout);
+        mList = new ArrayList<>();
         mContext = (MainActivity) getContext();
         mAdapter = new BoutiqueAdapter(mContext, mList);
         initView();
         initData();
-        return laypout;
+        return layout;
     }
 
     private void initData() {
