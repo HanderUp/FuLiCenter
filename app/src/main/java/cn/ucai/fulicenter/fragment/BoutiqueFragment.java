@@ -29,7 +29,7 @@ import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.view.SpaceItemDecoration;
 
 
-public class BoutiqueFragment extends Fragment {
+public class BoutiqueFragment extends BaseFragment {
     @BindView(R.id.tv_refresh)
     TextView mTvRefresh;
     @BindView(R.id.rv)
@@ -49,13 +49,12 @@ public class BoutiqueFragment extends Fragment {
         mList = new ArrayList<>();
         mContext = (MainActivity) getContext();
         mAdapter = new BoutiqueAdapter(mContext, mList);
-        initView();
-        initData();
-        setListener();
+        super.onCreateView(inflater, container, savedInstanceState);
         return layout;
     }
 
-    private void setListener() {
+    @Override
+    protected void setListener() {
         setPullDownListener();
     }
 
@@ -70,7 +69,8 @@ public class BoutiqueFragment extends Fragment {
         });
     }
 
-    private void initData() {
+    @Override
+    protected void initData() {
         downloadBoutique();
     }
 
@@ -97,7 +97,8 @@ public class BoutiqueFragment extends Fragment {
         });
     }
 
-    private void initView() {
+    @Override
+    protected void initView() {
         mSrl.setColorSchemeColors(
                 getResources().getColor(R.color.google_blue),
                 getResources().getColor(R.color.google_green),
