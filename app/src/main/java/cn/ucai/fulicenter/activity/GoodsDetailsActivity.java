@@ -21,7 +21,7 @@ import cn.ucai.fulicenter.utils.MFGT;
 import cn.ucai.fulicenter.view.FlowIndicator;
 import cn.ucai.fulicenter.view.SlideAutoLoopView;
 
-public class GoodsDetailsActivity extends AppCompatActivity {
+public class GoodsDetailsActivity extends BaseActivity {
 
     @BindView(R.id.backClickArea)
     LinearLayout mBackClickArea;
@@ -45,7 +45,6 @@ public class GoodsDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_goods_details);
         ButterKnife.bind(this);
         goodsId = getIntent().getIntExtra(I.GoodsDetails.KEY_GOODS_ID, 0);
@@ -54,16 +53,21 @@ public class GoodsDetailsActivity extends AppCompatActivity {
             finish();
         }
         mContext = this;
-        initView();
-        initData();
-        initListener();
+        super.onCreate(savedInstanceState);
     }
 
-    private void initListener() {
+    @Override
+    protected void setListener() {
 
     }
 
-    private void initData() {
+    @Override
+    protected void initView() {
+
+    }
+
+    @Override
+    protected void initData() {
         NetDao.downloadGoodsDetails(mContext, goodsId, new OkHttpUtils.OnCompleteListener<GoodsDetailsBean>() {
             @Override
             public void onSuccess(GoodsDetailsBean result) {
@@ -112,18 +116,14 @@ public class GoodsDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void initView() {
-
-    }
-
     @OnClick(R.id.backClickArea)
     public void onBackClick() {
         MFGT.finish(this);
     }
 
-    //屏蔽系统的back键返回方式
-    @Override
-    public void onBackPressed() {
-        MFGT.finish(this);
-    }
+//    //屏蔽系统的back键返回方式
+//    @Override
+//    public void onBackPressed() {
+//        MFGT.finish(this);
+//    }
 }
