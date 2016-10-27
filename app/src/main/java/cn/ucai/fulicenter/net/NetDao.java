@@ -54,4 +54,14 @@ public class NetDao {
                 .targetClass(CategoryChildBean[].class)
                 .execute(listener);
     }
+
+    public static void downloadCategoryGoods(Context context,int catId, int pagId, OkHttpUtils.OnCompleteListener<NewGoodsBean[]> listener){
+        OkHttpUtils utils=new OkHttpUtils(context);
+        utils.setRequestUrl(I.REQUEST_FIND_GOODS_DETAILS)
+                .addParam(I.NewAndBoutiqueGoods.CAT_ID,String.valueOf(catId))
+                .addParam(I.PAGE_ID,String.valueOf(pagId))
+                .addParam(I.PAGE_SIZE,String.valueOf(I.PAGE_SIZE_DEFAULT))
+                .targetClass(NewGoodsBean[].class)
+                .execute(listener);
+    }
 }
