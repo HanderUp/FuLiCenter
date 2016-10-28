@@ -103,7 +103,7 @@ public class CategoryFragment extends BaseFragment {
 
             @Override
             public void onError(String error) {
-
+                L.e("error="+error);
             }
         });
     }
