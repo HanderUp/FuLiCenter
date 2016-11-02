@@ -5,7 +5,6 @@
     android:background="#eff2f6"
     android:orientation="vertical">
     <include layout="@layout/common_head_title_white" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
@@ -106,4 +105,7 @@
                 android:textSize="18sp"/>
         </LinearLayout>
     </RelativeLayout>
+
+    <include layout="@layout/common_head_title_white" />
+
 </LinearLayout>
