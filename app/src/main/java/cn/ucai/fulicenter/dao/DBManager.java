@@ -47,6 +47,7 @@ public class DBManager {
         User user = null;
         Cursor cursor = db.rawQuery(sql, new String[]{username});
         if (cursor.moveToNext()) {
+            user=new User();
             user.setMuserName(username);
             user.setMuserNick(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_NICK)));
             user.setMavatarId(cursor.getInt(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATAR_ID)));
