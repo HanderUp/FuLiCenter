@@ -29,4 +29,10 @@
     <string name="user_profile_avatar">user profile avatar</string>
     <string name="logout">logout</string>
     <string name="user_profile">user profile</string>
+    <string name="save">save</string>
+    <string name="update_user_nick">update user nick</string>
+    <string name="update_nick_fail_unmodify">update nick fail unmodify</string>
+    <string name="update_fail">update fail</string>
+    <string name="update_user_nick_success">update user nick success</string>
+    <string name="user_name_connot_be_modify">user name connot be modify</string>
 </resources>
