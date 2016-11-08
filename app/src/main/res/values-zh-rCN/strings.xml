@@ -35,4 +35,7 @@
     <string name="update_fail">更新失败</string>
     <string name="update_user_nick_success">昵称修改成功</string>
     <string name="user_name_connot_be_modify">用户名作为登录名不能修改</string>
+    <string name="update_user_avatar">更新用户头像</string>
+    <string name="update_user_avatar_success">更新用户头像成功</string>
+    <string name="update_user_avatar_fail">更新用户头像失败</string>
 </resources>

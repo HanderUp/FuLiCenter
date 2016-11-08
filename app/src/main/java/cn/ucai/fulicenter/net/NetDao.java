@@ -2,6 +2,8 @@ package cn.ucai.fulicenter.net;
 
 import android.content.Context;
 
+import java.io.File;
+
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.bean.BoutiqueBean;
 import cn.ucai.fulicenter.bean.CategoryChildBean;
@@ -10,7 +12,6 @@ import cn.ucai.fulicenter.bean.GoodsDetailsBean;
 import cn.ucai.fulicenter.bean.NewGoodsBean;
 import cn.ucai.fulicenter.bean.Result;
 import cn.ucai.fulicenter.utils.MD5;
-import okhttp3.OkHttpClient;
 
 public class NetDao {
     public static void downloadNewGoods(Context context,int catId, int pagId, OkHttpUtils.OnCompleteListener<NewGoodsBean[]> listener){
@@ -94,4 +95,16 @@ public class NetDao {
                 .execute(listener);
 
     }
+
+    public static void updateAvatar(Context context, String username, File file, OkHttpUtils.OnCompleteListener<String> listener) {
+        OkHttpUtils<String> utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_UPDATE_AVATAR)
+                .addParam(I.NAME_OR_HXID,username)
+                .addParam(I.AVATAR_TYPE,I.AVATAR_TYPE_USER_PATH)
+                .addFile2(file)
+                .targetClass(String.class)
+                .post()
+                .execute(listener);
+    }
+
 }
