@@ -19,6 +19,7 @@ import butterknife.OnClick;
 import cn.ucai.fulicenter.FuLiCenterApplication;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
+import cn.ucai.fulicenter.bean.MessageBean;
 import cn.ucai.fulicenter.bean.Result;
 import cn.ucai.fulicenter.bean.User;
 import cn.ucai.fulicenter.dao.UserDao;
@@ -43,7 +44,9 @@ public class PersonalCenterFragment extends BaseFragment {
     MainActivity mContext;
     @BindView(R.id.center_user_order_list)
     GridView mCenterUserOrderList;
-    User user=null;
+    User user = null;
+    @BindView(R.id.tv_collect_count)
+    TextView mTvCollectCount;
 
     @Nullable
     @Override
@@ -86,10 +89,11 @@ public class PersonalCenterFragment extends BaseFragment {
             ImageLoader.setAvatar(ImageLoader.getAvatarUrl(user), mContext, mIvUserAvatar);
             mTvUserName.setText(user.getMuserNick());
             syncUserInfo();
+            syncCollectsCount();
         }
     }
 
-    @OnClick({R.id.tv_center_settings,R.id.center_user_info})
+    @OnClick({R.id.tv_center_settings, R.id.center_user_info})
     public void gotoSettings() {
         MFGT.gotoSettings(mContext);
     }
@@ -120,7 +124,7 @@ public class PersonalCenterFragment extends BaseFragment {
         NetDao.syncUserINfo(mContext, user.getMuserName(), new OkHttpUtils.OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
-                Result result=ResultUtils.getListResultFromJson(s, User.class);
+                Result result = ResultUtils.getListResultFromJson(s, User.class);
                 if (result != null) {
                     User u = (User) result.getRetData();
                     if (!user.equals(u)) {
@@ -139,6 +143,25 @@ public class PersonalCenterFragment extends BaseFragment {
             @Override
             public void onError(String error) {
 
+            }
+        });
+    }
+
+    private void syncCollectsCount() {
+        NetDao.getCollectsCount(mContext, user.getMuserName(), new OkHttpUtils.OnCompleteListener<MessageBean>() {
+            @Override
+            public void onSuccess(MessageBean result) {
+                if (result != null && result.isSuccess()) {
+                    mTvCollectCount.setText(result.getMsg());
+                } else {
+                    mTvCollectCount.setText(String.valueOf(0));
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                mTvCollectCount.setText(String.valueOf(0));
+                L.e(TAG,"error="+error);
             }
         });
     }
