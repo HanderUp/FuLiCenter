@@ -27,8 +27,8 @@ import cn.ucai.fulicenter.view.DisplayUtils;
 public class UpdateNickActivity extends BaseActivity {
     private static final String TAG = UpdateNickActivity.class.getSimpleName();
 
-    @BindView(R.id.et_update_user_name)
-    EditText mEtUpdateUserName;
+    @BindView(R.id.et_update_user_nick)
+    EditText mEtUpdateUserNick;
     UpdateNickActivity mContext;
 
     User user = null;
@@ -50,8 +50,8 @@ public class UpdateNickActivity extends BaseActivity {
     protected void initData() {
         user=FuLiCenterApplication.getUser();
         if (user != null) {
-            mEtUpdateUserName.setText(user.getMuserNick());
-            mEtUpdateUserName.setSelectAllOnFocus(true);
+            mEtUpdateUserNick.setText(user.getMuserNick());
+            mEtUpdateUserNick.setSelectAllOnFocus(true);
         } else {
             finish();
         }
@@ -65,7 +65,7 @@ public class UpdateNickActivity extends BaseActivity {
     @OnClick(R.id.btn_save)
     public void checkNick() {
         if (user != null) {
-            String nick=mEtUpdateUserName.getText().toString().trim();
+            String nick=mEtUpdateUserNick.getText().toString().trim();
             if (nick.equals(user.getMuserNick())) {
                 CommonUtils.showShortToast(R.string.update_nick_fail_unmodify);
             } else if (TextUtils.isEmpty(nick)) {
@@ -96,6 +96,7 @@ public class UpdateNickActivity extends BaseActivity {
                         if (isSuccess) {
                             FuLiCenterApplication.setUser(u);
                             setResult(RESULT_OK);
+
                             MFGT.finish(mContext);
                         } else {
                             CommonUtils.showShortToast(R.string.user_database_error);

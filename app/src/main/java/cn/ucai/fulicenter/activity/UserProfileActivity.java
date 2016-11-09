@@ -107,20 +107,20 @@ public class UserProfileActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         L.e("onActivityResult,requestCode="+requestCode+",resultCode="+resultCode);
+        if(resultCode==RESULT_OK&&requestCode== I.REQUEST_CODE_NICK){
+            CommonUtils.showLongToast(R.string.update_user_nick_success);
+        }
         if(resultCode!=RESULT_OK){
             return;
         }
+
         mOnSetAvatarListener.setAvatar(requestCode,data,mIvUserProfileAvatar);
-        if(requestCode== I.REQUEST_CODE_NICK){
-            CommonUtils.showLongToast(R.string.update_user_nick_success);
-        }
         if(requestCode==OnSetAvatarListener.REQUEST_CROP_PHOTO){
             updateAvatar();
         }
     }
 
     private void updateAvatar() {
-        //file=/storage/emulated/0/Android/data/cn.ucai.fulicenter/files/Pictures/a952700
         //file=/storage/emulated/0/Android/data/cn.ucai.fulicenter/files/Pictures/user_avatar/a952700.jpg
         File file = new File(OnSetAvatarListener.getAvatarPath(mContext,
                 user.getMavatarPath()+"/"+user.getMuserName()

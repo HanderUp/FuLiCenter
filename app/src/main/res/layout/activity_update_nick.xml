@@ -7,7 +7,7 @@
     android:background="@color/list_background">
     <include layout="@layout/common_head_title_white"/>
     <EditText
-        android:id="@+id/et_update_user_name"
+        android:id="@+id/et_update_user_nick"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
