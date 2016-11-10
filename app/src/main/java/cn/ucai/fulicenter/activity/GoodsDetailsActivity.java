@@ -1,18 +1,21 @@
 package cn.ucai.fulicenter.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.ucai.fulicenter.FuLiCenterApplication;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.bean.AlbumsBean;
 import cn.ucai.fulicenter.bean.GoodsDetailsBean;
+import cn.ucai.fulicenter.bean.MessageBean;
+import cn.ucai.fulicenter.bean.User;
 import cn.ucai.fulicenter.net.NetDao;
 import cn.ucai.fulicenter.net.OkHttpUtils;
 import cn.ucai.fulicenter.utils.CommonUtils;
@@ -42,6 +45,9 @@ public class GoodsDetailsActivity extends BaseActivity {
 
     int goodsId;
     GoodsDetailsActivity mContext;
+    boolean isCollected = false;
+    @BindView(R.id.iv_good_collect)
+    ImageView mIvGoodCollect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +73,17 @@ public class GoodsDetailsActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        isColected();
+    }
+
+    @Override
     protected void initData() {
         NetDao.downloadGoodsDetails(mContext, goodsId, new OkHttpUtils.OnCompleteListener<GoodsDetailsBean>() {
             @Override
             public void onSuccess(GoodsDetailsBean result) {
-                L.i("details="+result);
+                L.i("details=" + result);
                 if (result != null) {
                     showGoodsDetails(result);
                 } else {
@@ -84,8 +96,8 @@ public class GoodsDetailsActivity extends BaseActivity {
                 mTvGoodName.setText(details.getGoodsName());
                 mTvGoodPriceShop.setText(details.getShopPrice());
                 mTvGoodPriceCurrent.setText(details.getCurrencyPrice());
-                mSalv.startPlayLoop(mIndicator,getAlbumImgUrl(details),getAlbumImgCount(details));
-                mWvGoodBrief.loadDataWithBaseURL(null,details.getGoodsBrief(),I.TEXT_HTML,I.UTF_8,null);
+                mSalv.startPlayLoop(mIndicator, getAlbumImgUrl(details), getAlbumImgCount(details));
+                mWvGoodBrief.loadDataWithBaseURL(null, details.getGoodsBrief(), I.TEXT_HTML, I.UTF_8, null);
             }
 
             private int getAlbumImgCount(GoodsDetailsBean details) {
@@ -96,11 +108,11 @@ public class GoodsDetailsActivity extends BaseActivity {
             }
 
             private String[] getAlbumImgUrl(GoodsDetailsBean details) {
-                String[] urls=new String[]{};
+                String[] urls = new String[]{};
                 if (details.getProperties() != null && details.getProperties().length > 0) {
                     AlbumsBean[] albums = details.getProperties()[0].getAlbums();
                     urls = new String[albums.length];
-                    for (int i=0;i<albums.length;i++) {
+                    for (int i = 0; i < albums.length; i++) {
                         urls[i] = albums[i].getImgUrl();
                     }
                 }
@@ -110,7 +122,7 @@ public class GoodsDetailsActivity extends BaseActivity {
             @Override
             public void onError(String error) {
                 finish();
-                L.e("details,error="+error);
+                L.e("details,error=" + error);
                 CommonUtils.showShortToast(error);
             }
         });
@@ -121,9 +133,35 @@ public class GoodsDetailsActivity extends BaseActivity {
         MFGT.finish(this);
     }
 
-//    //屏蔽系统的back键返回方式
-//    @Override
-//    public void onBackPressed() {
-//        MFGT.finish(this);
-//    }
+    private void isColected() {
+        User user = FuLiCenterApplication.getUser();
+        if (user != null) {
+            NetDao.isCollected(mContext, user.getMuserName(), goodsId, new OkHttpUtils.OnCompleteListener<MessageBean>() {
+                @Override
+                public void onSuccess(MessageBean result) {
+                    if (result != null && result.isSuccess()) {
+                        isCollected = true;
+                    } else {
+                        isCollected = false;
+                    }
+                    updateGoodsCollectStatus();
+                }
+
+                @Override
+                public void onError(String error) {
+                    isCollected = false;
+                    updateGoodsCollectStatus();
+                }
+            });
+        }
+        updateGoodsCollectStatus();
+    }
+
+    private void updateGoodsCollectStatus() {
+        if (isCollected) {
+            mIvGoodCollect.setImageResource(R.mipmap.bg_collect_out);
+        } else {
+            mIvGoodCollect.setImageResource(R.mipmap.bg_collect_in);
+        }
+    }
 }
