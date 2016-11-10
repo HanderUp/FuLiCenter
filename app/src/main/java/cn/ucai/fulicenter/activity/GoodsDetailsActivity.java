@@ -1,5 +1,6 @@
 package cn.ucai.fulicenter.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -54,7 +55,7 @@ public class GoodsDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_goods_details);
         ButterKnife.bind(this);
         goodsId = getIntent().getIntExtra(I.GoodsDetails.KEY_GOODS_ID, 0);
-        L.e("Details", "goodsId=" + goodsId);
+        L.e("details", "goodsid=" + goodsId);
         if (goodsId == 0) {
             finish();
         }
@@ -68,55 +69,16 @@ public class GoodsDetailsActivity extends BaseActivity {
     }
 
     @Override
-    protected void initView() {
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isColected();
-    }
-
-    @Override
     protected void initData() {
         NetDao.downloadGoodsDetails(mContext, goodsId, new OkHttpUtils.OnCompleteListener<GoodsDetailsBean>() {
             @Override
             public void onSuccess(GoodsDetailsBean result) {
                 L.i("details=" + result);
                 if (result != null) {
-                    showGoodsDetails(result);
+                    showGoodDetails(result);
                 } else {
                     finish();
                 }
-            }
-
-            private void showGoodsDetails(GoodsDetailsBean details) {
-                mTvGoodNameEnglish.setText(details.getGoodsEnglishName());
-                mTvGoodName.setText(details.getGoodsName());
-                mTvGoodPriceShop.setText(details.getShopPrice());
-                mTvGoodPriceCurrent.setText(details.getCurrencyPrice());
-                mSalv.startPlayLoop(mIndicator, getAlbumImgUrl(details), getAlbumImgCount(details));
-                mWvGoodBrief.loadDataWithBaseURL(null, details.getGoodsBrief(), I.TEXT_HTML, I.UTF_8, null);
-            }
-
-            private int getAlbumImgCount(GoodsDetailsBean details) {
-                if (details.getProperties() != null && details.getProperties().length > 0) {
-                    return details.getProperties()[0].getAlbums().length;
-                }
-                return 0;
-            }
-
-            private String[] getAlbumImgUrl(GoodsDetailsBean details) {
-                String[] urls = new String[]{};
-                if (details.getProperties() != null && details.getProperties().length > 0) {
-                    AlbumsBean[] albums = details.getProperties()[0].getAlbums();
-                    urls = new String[albums.length];
-                    for (int i = 0; i < albums.length; i++) {
-                        urls[i] = albums[i].getImgUrl();
-                    }
-                }
-                return urls;
             }
 
             @Override
@@ -128,12 +90,94 @@ public class GoodsDetailsActivity extends BaseActivity {
         });
     }
 
+    private void showGoodDetails(GoodsDetailsBean details) {
+        mTvGoodNameEnglish.setText(details.getGoodsEnglishName());
+        mTvGoodName.setText(details.getGoodsName());
+        mTvGoodPriceCurrent.setText(details.getCurrencyPrice());
+        mTvGoodPriceShop.setText(details.getShopPrice());
+        mSalv.startPlayLoop(mIndicator, getAlbumImgUrl(details), getAlbumImgCount(details));
+        mWvGoodBrief.loadDataWithBaseURL(null, details.getGoodsBrief(), I.TEXT_HTML, I.UTF_8, null);
+    }
+
+    private int getAlbumImgCount(GoodsDetailsBean details) {
+        if (details.getProperties() != null && details.getProperties().length > 0) {
+            return details.getProperties()[0].getAlbums().length;
+        }
+        return 0;
+    }
+
+    private String[] getAlbumImgUrl(GoodsDetailsBean details) {
+        String[] urls = new String[]{};
+        if (details.getProperties() != null && details.getProperties().length > 0) {
+            AlbumsBean[] albums = details.getProperties()[0].getAlbums();
+            urls = new String[albums.length];
+            for (int i = 0; i < albums.length; i++) {
+                urls[i] = albums[i].getImgUrl();
+            }
+        }
+        return urls;
+    }
+
+    @Override
+    protected void initView() {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isCollected();
+    }
+
     @OnClick(R.id.backClickArea)
     public void onBackClick() {
         MFGT.finish(this);
     }
 
-    private void isColected() {
+    @OnClick(R.id.iv_good_collect)
+    public void onCollectClick(){
+        User user = FuLiCenterApplication.getUser();
+        if(user==null){
+            MFGT.gotoLoginActivity(mContext);
+        }else{
+            if(isCollected){
+                NetDao.deleteCollect(mContext, user.getMuserName(), goodsId, new OkHttpUtils.OnCompleteListener<MessageBean>() {
+                    @Override
+                    public void onSuccess(MessageBean result) {
+                        if(result!=null && result.isSuccess()){
+                            isCollected = !isCollected;
+                            updateGoodsCollectStatus();
+                            CommonUtils.showLongToast(result.getMsg());
+                            mContext.sendStickyBroadcast(new Intent("update_collect").putExtra(I.Collect.GOODS_ID,goodsId));
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
+            }else{
+                NetDao.addCollect(mContext, user.getMuserName(), goodsId, new OkHttpUtils.OnCompleteListener<MessageBean>() {
+                    @Override
+                    public void onSuccess(MessageBean result) {
+                        if(result!=null && result.isSuccess()){
+                            isCollected = !isCollected;
+                            updateGoodsCollectStatus();
+                            CommonUtils.showLongToast(result.getMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
+            }
+        }
+    }
+
+    private void isCollected() {
         User user = FuLiCenterApplication.getUser();
         if (user != null) {
             NetDao.isCollected(mContext, user.getMuserName(), goodsId, new OkHttpUtils.OnCompleteListener<MessageBean>() {
@@ -141,7 +185,7 @@ public class GoodsDetailsActivity extends BaseActivity {
                 public void onSuccess(MessageBean result) {
                     if (result != null && result.isSuccess()) {
                         isCollected = true;
-                    } else {
+                    }else{
                         isCollected = false;
                     }
                     updateGoodsCollectStatus();
@@ -164,4 +208,6 @@ public class GoodsDetailsActivity extends BaseActivity {
             mIvGoodCollect.setImageResource(R.mipmap.bg_collect_in);
         }
     }
+
+
 }

@@ -1,5 +1,9 @@
 package cn.ucai.fulicenter.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,11 +19,11 @@ import cn.ucai.fulicenter.FuLiCenterApplication;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.adapter.CollectsAdapter;
-import cn.ucai.fulicenter.adapter.GoodsAdapter;
 import cn.ucai.fulicenter.bean.CollectBean;
 import cn.ucai.fulicenter.bean.User;
 import cn.ucai.fulicenter.net.NetDao;
 import cn.ucai.fulicenter.net.OkHttpUtils;
+import cn.ucai.fulicenter.utils.CommonUtils;
 import cn.ucai.fulicenter.utils.ConvertUtils;
 import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.view.DisplayUtils;
@@ -46,7 +50,7 @@ public class CollectsActivity extends BaseActivity {
         ButterKnife.bind(this);
         mContext = this;
         mList = new ArrayList<>();
-        mAdapter = new CollectsAdapter(mContext, mList);
+        mAdapter = new CollectsAdapter(mContext,mList);
         super.onCreate(savedInstanceState);
     }
 
@@ -63,13 +67,15 @@ public class CollectsActivity extends BaseActivity {
         mRv.setLayoutManager(glm);
         mRv.setHasFixedSize(true);
         mRv.setAdapter(mAdapter);
-        mRv.addItemDecoration(new SpaceItemDecoration(20));
+        mRv.addItemDecoration(new SpaceItemDecoration(12));
     }
 
     @Override
     protected void setListener() {
         setPullUpListener();
         setPullDownListener();
+        IntentFilter filter = new IntentFilter("update_collect");
+        registerReceiver(mReceiver,filter);
     }
 
     private void setPullDownListener() {
@@ -79,19 +85,18 @@ public class CollectsActivity extends BaseActivity {
                 mSrl.setRefreshing(true);
                 mTvRefresh.setVisibility(View.VISIBLE);
                 pageId = 1;
-                downloadColltects(I.ACTION_PULL_DOWN);
+                downloadCollects(I.ACTION_PULL_DOWN);
             }
         });
     }
 
-    private void downloadColltects(final int action) {
+    private void downloadCollects(final int action) {
         NetDao.downloadCollects(mContext, user.getMuserName(), pageId, new OkHttpUtils.OnCompleteListener<CollectBean[]>() {
             @Override
             public void onSuccess(CollectBean[] result) {
                 mSrl.setRefreshing(false);
                 mTvRefresh.setVisibility(View.GONE);
                 mAdapter.setMore(true);
-                L.e("result=" + result);
                 if (result != null && result.length > 0) {
                     ArrayList<CollectBean> list = ConvertUtils.array2List(result);
                     if (action == I.ACTION_DOWNLOAD || action == I.ACTION_PULL_DOWN) {
@@ -99,7 +104,7 @@ public class CollectsActivity extends BaseActivity {
                     } else {
                         mAdapter.addData(list);
                     }
-                    if (list.size() < I.PAGE_ID_DEFAULT) {
+                    if (list.size() < I.PAGE_SIZE_DEFAULT) {
                         mAdapter.setMore(false);
                     }
                 } else {
@@ -112,6 +117,7 @@ public class CollectsActivity extends BaseActivity {
                 mSrl.setRefreshing(false);
                 mTvRefresh.setVisibility(View.GONE);
                 mAdapter.setMore(false);
+                CommonUtils.showShortToast(error);
                 L.e("error:" + error);
             }
         });
@@ -127,7 +133,7 @@ public class CollectsActivity extends BaseActivity {
                         && lastPosition == mAdapter.getItemCount() - 1
                         && mAdapter.isMore()) {
                     pageId++;
-                    downloadColltects(I.ACTION_PULL_UP);
+                    downloadCollects(I.ACTION_PULL_UP);
                 }
             }
 
@@ -143,9 +149,32 @@ public class CollectsActivity extends BaseActivity {
     @Override
     protected void initData() {
         user = FuLiCenterApplication.getUser();
-        if (user == null) {
+        if(user==null){
             finish();
         }
-        downloadColltects(I.ACTION_DOWNLOAD);
+        downloadCollects(I.ACTION_DOWNLOAD);
+    }
+
+    updateCollectReceiver mReceiver;
+    class updateCollectReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int goodsId = intent.getIntExtra(I.Collect.GOODS_ID,0);
+            if(goodsId!=0){
+                CollectBean bean = new CollectBean();
+                bean.setGoodsId(goodsId);
+                mAdapter.remove(bean);
+                L.e("delete..."+goodsId);
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mReceiver!=null){
+            unregisterReceiver(mReceiver);
+        }
     }
 }

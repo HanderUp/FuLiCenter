@@ -6,13 +6,10 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,23 +29,23 @@ import cn.ucai.fulicenter.utils.MFGT;
 import cn.ucai.fulicenter.view.FooterViewHolder;
 
 /**
- * Created by Administrator on 2016/10/22.
+ * Created by clawpo on 2016/10/17.
  */
 
 public class CollectsAdapter extends Adapter {
     Context mContext;
     List<CollectBean> mList;
     boolean isMore;
-    int sortBy=I.SORT_BY_ADDTIME_DESC;
+    int soryBy = I.SORT_BY_ADDTIME_DESC;
 
     public CollectsAdapter(Context context, List<CollectBean> list) {
-        mContext=context;
+        mContext = context;
         mList = new ArrayList<>();
         mList.addAll(list);
     }
 
-    public void setSortBy(int sortBy) {
-        this.sortBy = sortBy;
+    public void setSoryBy(int soryBy) {
+        this.soryBy = soryBy;
         notifyDataSetChanged();
     }
 
@@ -67,26 +64,26 @@ public class CollectsAdapter extends Adapter {
         if (viewType == I.TYPE_FOOTER) {
             holder = new FooterViewHolder(View.inflate(mContext, R.layout.item_footer, null));
         } else {
-            holder = new CollectsViewHolder(View.inflate(mContext, R.layout.item_collects, null));
+            holder = new ColelctsViewHolder(View.inflate(mContext, R.layout.item_collects, null));
         }
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (getItemViewType(position) == I.TYPE_FOOTER) {
+        if(getItemViewType(position)==I.TYPE_FOOTER){
             FooterViewHolder vh = (FooterViewHolder) holder;
-            vh.mTvFooter.setText(getFooterString());
-        } else {
-            CollectsViewHolder vh = (CollectsViewHolder) holder;
+            vh.mTvFooter.setText(getFootString());
+        }else{
+            ColelctsViewHolder vh = (ColelctsViewHolder) holder;
             CollectBean goods = mList.get(position);
             ImageLoader.downloadImg(mContext,vh.mIvGoodsThumb,goods.getGoodsThumb());
-            vh.mTvGoodsname.setText(goods.getGoodsName());
+            vh.mTvGoodsName.setText(goods.getGoodsName());
             vh.mLayoutGoods.setTag(goods);
         }
     }
 
-    private int getFooterString() {
+    private int getFootString() {
         return isMore?R.string.load_more:R.string.no_more;
     }
 
@@ -104,7 +101,7 @@ public class CollectsAdapter extends Adapter {
     }
 
     public void initData(ArrayList<CollectBean> list) {
-        if (mList != null) {
+        if(mList!=null){
             mList.clear();
         }
         mList.addAll(list);
@@ -116,47 +113,50 @@ public class CollectsAdapter extends Adapter {
         notifyDataSetChanged();
     }
 
-    class CollectsViewHolder extends ViewHolder{
+    public void remove(CollectBean bean) {
+        mList.remove(bean);
+        notifyDataSetChanged();
+    }
+
+    class ColelctsViewHolder extends ViewHolder{
         @BindView(R.id.ivGoodsThumb)
         ImageView mIvGoodsThumb;
         @BindView(R.id.tvGoodsname)
-        TextView mTvGoodsname;
+        TextView mTvGoodsName;
         @BindView(R.id.iv_collect_del)
         ImageView mIvCollectDel;
         @BindView(R.id.layout_goods)
         RelativeLayout mLayoutGoods;
 
-        CollectsViewHolder(View view) {
+        ColelctsViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
         }
-
         @OnClick(R.id.layout_goods)
-        public void onGoodsItemClick() {
-            CollectBean goods= (CollectBean) mLayoutGoods.getTag();
+        public void onGoodsItemClick(){
+            CollectBean goods = (CollectBean) mLayoutGoods.getTag();
             MFGT.gotoGoodsDetailsActivity(mContext,goods.getGoodsId());
         }
-
         @OnClick(R.id.iv_collect_del)
-        public void deleteCollect() {
-            final CollectBean goods= (CollectBean) mLayoutGoods.getTag();
-            String username=FuLiCenterApplication.getUser().getMuserName();
+        public void deleteCollect(){
+            final CollectBean goods = (CollectBean) mLayoutGoods.getTag();
+            String username = FuLiCenterApplication.getUser().getMuserName();
             NetDao.deleteCollect(mContext, username, goods.getGoodsId(), new OkHttpUtils.OnCompleteListener<MessageBean>() {
                 @Override
                 public void onSuccess(MessageBean result) {
-                    if (result != null && result.isSuccess()) {
+                    if(result!=null && result.isSuccess()){
                         mList.remove(goods);
                         notifyDataSetChanged();
-                    } else {
-                        CommonUtils.showShortToast(result!=null?result.getMsg():
+                    }else{
+                        CommonUtils.showLongToast(result!=null?result.getMsg():
                                 mContext.getResources().getString(R.string.delete_collect_fail));
                     }
                 }
 
                 @Override
                 public void onError(String error) {
-                    L.e("error=" + error);
-                    CommonUtils.showShortToast(mContext.getResources().getString(R.string.delete_collect_fail));
+                    L.e("error="+error);
+                    CommonUtils.showLongToast(mContext.getResources().getString(R.string.delete_collect_fail));
                 }
             });
         }
