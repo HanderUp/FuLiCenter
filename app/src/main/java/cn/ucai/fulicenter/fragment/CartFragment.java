@@ -8,12 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.ucai.fulicenter.FuLiCenterApplication;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
@@ -23,7 +25,6 @@ import cn.ucai.fulicenter.bean.User;
 import cn.ucai.fulicenter.net.NetDao;
 import cn.ucai.fulicenter.net.OkHttpUtils;
 import cn.ucai.fulicenter.utils.CommonUtils;
-import cn.ucai.fulicenter.utils.ConvertUtils;
 import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.utils.ResultUtils;
 import cn.ucai.fulicenter.view.SpaceItemDecoration;
@@ -42,11 +43,20 @@ public class CartFragment extends BaseFragment {
     MainActivity mContext;
     CartAdapter mAdapter;
     ArrayList<CartBean> mList;
+    @BindView(R.id.tv_cart_sum_price)
+    TextView mTvCartSumPrice;
+    @BindView(R.id.tv_cart_save_price)
+    TextView mTvCartSavePrice;
+    @BindView(R.id.layout_cart)
+    RelativeLayout mLayoutCart;
+    @BindView(R.id.tv_nothing)
+    TextView mTvNothing;
+    private boolean cartLayout;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_newgoods, container, false);
+        View layout = inflater.inflate(R.layout.fragment_cart, container, false);
         ButterKnife.bind(this, layout);
         mList = new ArrayList<>();
         mContext = (MainActivity) getContext();
@@ -77,23 +87,27 @@ public class CartFragment extends BaseFragment {
     }
 
     private void downloadCart() {
-        User user=FuLiCenterApplication.getUser();
+        User user = FuLiCenterApplication.getUser();
         if (user != null) {
             NetDao.downloadCart(mContext, user.getMuserName(), new OkHttpUtils.OnCompleteListener<String>() {
                 @Override
                 public void onSuccess(String s) {
                     ArrayList<CartBean> list = ResultUtils.getCartFromJson(s);
-                    L.e(TAG,"result=" + list);
+                    L.e(TAG, "result=" + list);
                     mSrl.setRefreshing(false);
                     mTvRefresh.setVisibility(View.GONE);
                     if (list != null && list.size() > 0) {
-                        L.e(TAG,"list[0]="+list.get(0));
+                        L.e(TAG, "list[0]=" + list.get(0));
                         mAdapter.initData(list);
+                        setCartLayout(true);
+                    } else {
+                        setCartLayout(false);
                     }
                 }
 
                 @Override
                 public void onError(String error) {
+                    setCartLayout(false);
                     mSrl.setRefreshing(false);
                     mTvRefresh.setVisibility(View.GONE);
                     CommonUtils.showShortToast(error);
@@ -116,5 +130,17 @@ public class CartFragment extends BaseFragment {
         mRv.setHasFixedSize(true);
         mRv.setAdapter(mAdapter);
         mRv.addItemDecoration(new SpaceItemDecoration(20));
+        setCartLayout(false);
     }
+
+    public void setCartLayout(boolean hasCart) {
+        mLayoutCart.setVisibility(hasCart?View.VISIBLE:View.GONE);
+        mTvNothing.setVisibility(hasCart?View.GONE:View.VISIBLE);
+        mRv.setVisibility(hasCart?View.VISIBLE:View.GONE);
+    }
+
+    @OnClick(R.id.tv_cart_buy)
+    public void onClick() {
+    }
+
 }
