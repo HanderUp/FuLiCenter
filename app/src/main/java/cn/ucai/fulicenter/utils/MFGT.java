@@ -69,6 +69,11 @@ public class MFGT {
         startActivityForResult(context,intent,I.REQUEST_CODE_LOGIN);
     }
 
+    public static void gotoLoginActivityFromCart(Activity context) {
+        Intent intent=new Intent();
+        intent.setClass(context, LoginActivity.class);
+        startActivityForResult(context,intent,I.REOUEST_CODE_CART);
+    }
     public static void gotoRegisterActivity(Activity context) {
         Intent intent=new Intent();
         intent.setClass(context, RegisterActivity.class);
@@ -88,6 +93,6 @@ public class MFGT {
         startActivityForResult(context, new Intent(context, UpdateNickActivity.class), I.REQUEST_CODE_NICK);
     }
     public static void gotoCollects(Activity context) {
-        startActivity(context, CollectsActivity.class);
+        startActivity(context, CollectsActivity .class);
     }
 }

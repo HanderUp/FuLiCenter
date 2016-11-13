@@ -18,6 +18,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.bean.CartBean;
+import cn.ucai.fulicenter.bean.GoodsDetailsBean;
+import cn.ucai.fulicenter.utils.ImageLoader;
 import cn.ucai.fulicenter.utils.MFGT;
 
 /**
@@ -44,11 +46,14 @@ public class CartAdapter extends Adapter<CartAdapter.CartViewHolder> {
     @Override
     public void onBindViewHolder(CartViewHolder holder, int position) {
         CartBean cartBean = mList.get(position);
-//        ImageLoader.downloadImg(mContext, holder.mIvBoutiqueImg, boutiqueBean.getImageurl());
-//        holder.mTvBoutiqueTitle.setText(boutiqueBean.getTitle());
-//        holder.mTvBoutiqueName.setText(boutiqueBean.getName());
-//        holder.mTvBoutiqueDescription.setText(boutiqueBean.getDescription());
-//        holder.mLayoutBoutiqueItem.setTag(boutiqueBean);
+        GoodsDetailsBean goods = cartBean.getGoods();
+        if (goods != null) {
+            ImageLoader.downloadImg(mContext,holder.mIvCartThumb,goods.getGoodsThumb());
+            holder.mTvCartGoodName.setText(goods.getGoodsName());
+            holder.mTvCartPrice.setText(goods.getShopPrice());
+        }
+        holder.mIvCartCount.setText("("+cartBean.getCount()+")");
+        holder.mCbCartSelected.setChecked(false);
     }
 
     @Override
@@ -66,19 +71,19 @@ public class CartAdapter extends Adapter<CartAdapter.CartViewHolder> {
 
     class CartViewHolder extends ViewHolder{
         @BindView(R.id.cb_cart_selected)
-        CheckBox cbCartSelected;
+        CheckBox mCbCartSelected;
         @BindView(R.id.iv_cart_thumb)
-        ImageView ivCartThumb;
+        ImageView mIvCartThumb;
         @BindView(R.id.tv_cart_good_name)
-        TextView tvCartGoodName;
+        TextView mTvCartGoodName;
         @BindView(R.id.iv_cart_add)
-        ImageView ivCartAdd;
+        ImageView mIvCartAdd;
         @BindView(R.id.iv_cart_count)
-        TextView ivCartCount;
+        TextView mIvCartCount;
         @BindView(R.id.iv_cart_del)
-        ImageView ivCartDel;
+        ImageView mIvCartDel;
         @BindView(R.id.tv_cart_price)
-        TextView tvCartPrice;
+        TextView mTvCartPrice;
 
         CartViewHolder(View view) {
             super(view);
