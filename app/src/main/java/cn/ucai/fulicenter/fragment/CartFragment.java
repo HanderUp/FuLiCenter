@@ -1,5 +1,9 @@
 package cn.ucai.fulicenter.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.FuLiCenterApplication;
+import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
 import cn.ucai.fulicenter.adapter.CartAdapter;
@@ -51,6 +56,9 @@ public class CartFragment extends BaseFragment {
     RelativeLayout mLayoutCart;
     @BindView(R.id.tv_nothing)
     TextView mTvNothing;
+
+    updataCartReceiver mReceiver;
+
     private boolean cartLayout;
 
     @Nullable
@@ -68,6 +76,9 @@ public class CartFragment extends BaseFragment {
     @Override
     protected void setListener() {
         setPullDownListener();
+        IntentFilter filter=new IntentFilter(I.BROADCAST_UPDATA_CART);
+        mReceiver=new updataCartReceiver();
+        mContext.registerReceiver(mReceiver, filter);
     }
 
     private void setPullDownListener() {
@@ -97,8 +108,9 @@ public class CartFragment extends BaseFragment {
                     mSrl.setRefreshing(false);
                     mTvRefresh.setVisibility(View.GONE);
                     if (list != null && list.size() > 0) {
-                        L.e(TAG, "list[0]=" + list.get(0));
-                        mAdapter.initData(list);
+                        mList.clear();
+                        mList.addAll(list);
+                        mAdapter.initData(mList);
                         setCartLayout(true);
                     } else {
                         setCartLayout(false);
@@ -137,10 +149,52 @@ public class CartFragment extends BaseFragment {
         mLayoutCart.setVisibility(hasCart?View.VISIBLE:View.GONE);
         mTvNothing.setVisibility(hasCart?View.GONE:View.VISIBLE);
         mRv.setVisibility(hasCart?View.VISIBLE:View.GONE);
+        sumPrice();
     }
 
     @OnClick(R.id.tv_cart_buy)
     public void onClick() {
     }
 
+    public void sumPrice() {
+        int sumPrice=0;
+        int ranPrice = 0;
+        if (mList != null && mList.size() > 0) {
+            for (CartBean c : mList) {
+                if (c.isChecked()) {
+                    sumPrice += getPrice(c.getGoods().getCurrencyPrice())*c.getCount();
+                    ranPrice += getPrice(c.getGoods().getRankPrice())*c.getCount();
+                }
+            }
+            mTvCartSumPrice.setText("合计:￥"+Double.valueOf(ranPrice));
+            mTvCartSavePrice.setText("节省:￥"+Double.valueOf(sumPrice-ranPrice));
+
+        } else {
+            mTvCartSumPrice.setText("合计:￥0");
+            mTvCartSavePrice.setText("节省:￥0");
+        }
+    }
+
+    private int getPrice(String price) {
+        price = price.substring(price.indexOf("￥") + 1);
+        return Integer.valueOf(price);
+    }
+
+    class updataCartReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            L.e(TAG,"updataCartReceiver...");
+            sumPrice();
+
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mReceiver != null) {
+            mContext.unregisterReceiver(mReceiver);
+        }
+    }
 }

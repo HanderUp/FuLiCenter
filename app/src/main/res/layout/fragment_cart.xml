@@ -11,22 +11,25 @@
         android:background="@color/white">
         <TextView
             android:id="@+id/tv_cart_sum_price"
+            android:layout_toLeftOf="@+id/tv_cart_buy"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
             android:text="合计:￥888.00"
             android:textColor="#f90"
             android:textSize="18sp"/>
         <TextView
             android:id="@+id/tv_cart_save_price"
-            android:layout_centerHorizontal="true"
+            android:layout_toLeftOf="@+id/tv_cart_buy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_cart_sum_price"
+            android:layout_marginRight="10dp"
             android:text="节省:￥666.00"
             android:textColor="@color/google_red"
-            android:textSize="18sp"/>
+            android:textSize="16sp"/>
         <TextView
             android:id="@+id/tv_cart_buy"
             android:layout_width="wrap_content"
