@@ -28,6 +28,8 @@ import cn.ucai.fulicenter.view.FlowIndicator;
 import cn.ucai.fulicenter.view.SlideAutoLoopView;
 
 public class GoodsDetailsActivity extends BaseActivity {
+    private static final String TAG = GoodsDetailsActivity.class.getSimpleName();
+
 
     @BindView(R.id.backClickArea)
     LinearLayout mBackClickArea;
@@ -242,4 +244,29 @@ public class GoodsDetailsActivity extends BaseActivity {
         oks.show(this);
     }
 
+    @OnClick(R.id.iv_good_cart)
+    public void addCart() {
+        User user=FuLiCenterApplication.getUser();
+        if (user != null) {
+            NetDao.addCart(mContext, user.getMuserName(), goodsId, new OkHttpUtils.OnCompleteListener<MessageBean>() {
+                @Override
+                public void onSuccess(MessageBean result) {
+                    if (result != null && result.isSuccess()) {
+                        CommonUtils.showShortToast(R.string.add_goods_success);
+                    } else {
+                        CommonUtils.showShortToast(R.string.add_goods_fail);
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    CommonUtils.showShortToast(R.string.add_goods_fail);
+                    L.e(TAG,"error="+error);
+                }
+            });
+        } else {
+            MFGT.gotoLoginActivity(mContext);
+        }
+
+    }
 }

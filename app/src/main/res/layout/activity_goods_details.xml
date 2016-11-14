@@ -37,21 +37,22 @@
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/iv_good_collect">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
-                android:padding="5dp"
-                android:src="@mipmap/bg_cart_selected" />
-
             <TextView
                 android:id="@+id/tv_cart_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="10"
                 android:textColor="#f00"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"/>
+
+            <ImageView
+                android:id="@+id/iv_good_cart"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                android:src="@mipmap/bg_cart_selected"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true" />
         </RelativeLayout>
     </RelativeLayout>
 

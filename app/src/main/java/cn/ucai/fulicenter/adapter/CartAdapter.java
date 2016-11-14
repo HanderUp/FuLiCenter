@@ -94,8 +94,6 @@ public class CartAdapter extends Adapter<CartAdapter.CartViewHolder> {
         ImageView mIvCartDel;
         @BindView(R.id.tv_cart_price)
         TextView mTvCartPrice;
-        @BindView(R.id.layout_cart_detail)
-        RelativeLayout mLayoutCartDetail;
 
         CartViewHolder(View view) {
             super(view);
