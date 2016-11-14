@@ -94,10 +94,19 @@ public class CartAdapter extends Adapter<CartAdapter.CartViewHolder> {
         ImageView mIvCartDel;
         @BindView(R.id.tv_cart_price)
         TextView mTvCartPrice;
+        @BindView(R.id.layout_cart_detail)
+        RelativeLayout mLayoutCartDetail;
 
         CartViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+        }
+
+        @OnClick({R.id.iv_cart_thumb,R.id.tv_cart_good_name,R.id.tv_cart_price})
+        public void gotoDetail() {
+            final int position = (int) mIvCartAdd.getTag();
+            CartBean cart = mList.get(position);
+            MFGT.gotoGoodsDetailsActivity(mContext,cart.getGoodsId());
         }
 
         @OnClick(R.id.iv_cart_add)
