@@ -27,9 +27,11 @@ import cn.ucai.fulicenter.FuLiCenterApplication;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.bean.CartBean;
+import cn.ucai.fulicenter.bean.MessageBean;
 import cn.ucai.fulicenter.bean.User;
 import cn.ucai.fulicenter.net.NetDao;
 import cn.ucai.fulicenter.net.OkHttpUtils;
+import cn.ucai.fulicenter.utils.CommonUtils;
 import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.utils.ResultUtils;
 import cn.ucai.fulicenter.view.DisplayUtils;
@@ -210,6 +212,7 @@ public class OrderActivity extends BaseActivity implements PaymentHandler{
             // 1：成功
             // 2:应用内快捷支付支付结果
 
+            L.e(TAG,"code="+data.getExtras().getInt("code"));
             if (data.getExtras().getInt("code") != 2) {
                 PingppLog.d(data.getExtras().getString("result") + "  " + data.getExtras().getInt("code"));
             } else {
@@ -226,6 +229,36 @@ public class OrderActivity extends BaseActivity implements PaymentHandler{
                     e.printStackTrace();
                 }
             }
+
+            //支付处理逻辑
+            int resultCode = data.getExtras().getInt("code");
+            switch (resultCode) {
+                case 1:
+                    paySuccess();
+                    CommonUtils.showShortToast(R.string.pingpp_title_activity_pay_sucessed);
+                    break;
+                case -1:
+                    CommonUtils.showShortToast(R.string.pingpp_pay_failed);
+                    finish();
+                    break;
+            }
         }
+    }
+
+    private void paySuccess() {
+        for (String id : ids) {
+            NetDao.deleteCart(mContext, Integer.valueOf(id), new OkHttpUtils.OnCompleteListener<MessageBean>() {
+                @Override
+                public void onSuccess(MessageBean result) {
+                    L.e(TAG,"result="+result);
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
+        }
+        finish();
     }
 }
